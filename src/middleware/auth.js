@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const validator = require("../validator/validator")
 const userModel = require("../model/userModel")
+//======================================authentication==============================================================
 const authentication = async function (req, res, next) {
     try {
         let token = req.headers["authorization"]
@@ -22,7 +23,7 @@ const authentication = async function (req, res, next) {
         res.status(500).send({ status: false, message: err.message })
     }
 }
-
+//=========================================authorization===============================================================
 const authorization = async function (req, res, next) {
     try {
         let userId = req.params.userId

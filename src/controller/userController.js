@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const aws = require('../aws/aws.js')
 const validator = require("../validator/validator")
 
-
+//=============================================== CREATE USER ===============================================================
 const createUser = async (req, res) => {
     try {
         let data = req.body;
@@ -137,7 +137,7 @@ const createUser = async (req, res) => {
         //hashing password with bcrypt
         data.password = await bcrypt.hash(password, 10);
 
-        //AWS
+        //Profile Images check for aws
         if (files && files.length !== 0) {
             if (!validator.isValidimage(files[0].originalname)) return res.status(400).send({ status: false, message: "File format is not valid" });
 
@@ -153,7 +153,7 @@ const createUser = async (req, res) => {
     }
 }
 
-//========================================================================================================================
+//=============================================login User Api-===========================================================================
 
 const login = async (req, res) => {
     try {
@@ -198,54 +198,55 @@ const login = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-//==================================================================================================================
+//================================================get User Api==================================================================
 
 const getUserProfile = async (req, res) => {
     try {
         let userId = req.params.userId
         if (!validator.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: " Invalid userId" })
+            return res.status(400).send({ status: false, message: " Invalid userId ⚠" })
         }
-        const userProfile = await userModel.findById(userId)
 
+        //getting the user document
+        const userProfile = await userModel.findById(userId)
         if (!userProfile) {
             return res.status(404).send({ status: false, message: "User Profile Not Found" })
         }
-        res.status(200).send({ status: true,message:"success", data: userProfile })
+        res.status(200).send({ status: true, message: "success", data: userProfile })
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-//===========================================================================================================================
+//===================================================Update User Api========================================================================
 let updateUser = async function (req, res) {
     try {
         let userId = req.params.userId
         let data = req.body
         let files = req.files;
-        
+
         let { fname, lname, email, password, address, phone, ...rest } = data
 
         if (!validator.isValidBody(rest)) {
             return res.status(400).send({ status: false, message: "InValid  Body Request" });
         }
-
+        //validationg the request bod
         if (!(files && !validator.isValidBody(data))) {
             if (!validator.isValidBody(data)) {
                 return res.status(400).send({ status: false, message: "Enter details to update your account data" });
             }
         }
+        //checking for firstname
         if (typeof fname == 'string') {
-            //checking for firstname
             if (validator.isValid(fname)) return res.status(400).send({ status: false, message: "First name should not be an empty string" });
 
             //validating firstname
             if (validator.isValidString(fname)) return res.status(400).send({ status: false, message: "Enter a valid First name and should not contains numbers" });
         }
+        //checking for lastname
         if (typeof lname == 'string') {
-            //checking for firstname
             if (validator.isValid(lname)) return res.status(400).send({ status: false, message: "Last name should not be an empty string" });
 
-            //validating firstname
+            //validating lastname
             if (validator.isValidString(lname)) return res.status(400).send({ status: false, message: "Enter a valid Last name and should not contains numbers" });
         }
         //validating user email-id
@@ -262,20 +263,19 @@ let updateUser = async function (req, res) {
         //checking if email already exist or not
         let duplicatePhone = await userModel.findOne({ phone: phone })
         if (duplicatePhone) return res.status(400).send({ status: false, message: "Phone already exist" })
-
+        //validating user password
         if (password || typeof password == 'string') {
-            //validating user password
             if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: "Password should be between 8 and 15 character" });
-
             //hashing password with bcrypt
             data.password = await bcrypt.hash(password, 10);
         }
-        //aws
+        //getting the AWS-S3 link after uploading the user's profileImag
         if (files && files.length !== 0) {
             if (!isValidimage(files[0].originalname)) return res.status(400).send({ status: false, message: "File format is not valid" });
             let profileImgUrl = await aws.uploadFile(files[0]);
             data.profileImage = profileImgUrl;
         }
+        // validation for address
         if (address === "") {
             return res.status(400).send({ status: false, message: "Please enter a valid address" })
         } else if (address) {
@@ -289,55 +289,46 @@ let updateUser = async function (req, res) {
                 return res.status(400).send({ status: false, message: "address should be an object" });
             }
             let { shipping, billing } = address
-
+            // validation for Shipping address
             if (shipping) {
                 if (typeof shipping != "object") {
                     return res.status(400).send({ status: false, message: "shipping should be an object" });
                 }
-
                 if (validator.isValid(shipping.street)) {
                     return res.status(400).send({ status: false, message: "shipping street is required" });
                 }
-
                 if (validator.isValid(shipping.city)) {
                     return res.status(400).send({ status: false, message: "shipping city is required" });
                 }
-
                 if (!validator.isvalidCity(shipping.city)) {
                     return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
                 }
-
                 if (validator.isValid(shipping.pincode)) {
                     return res.status(400).send({ status: false, message: "shipping pincode is required" });
                 }
-
                 if (!validator.isValidPincode(shipping.pincode)) {
                     return res.status(400).send({ status: false, message: "please enter valid pincode" });
                 }
-
             } else {
                 return res.status(400).send({ status: false, message: "Shipping address is required" })
             }
+            // validation for Billing address
             if (billing) {
                 if (typeof billing != "object") {
                     return res.status(400).send({ status: false, message: "billing should be an object" });
                 }
-
                 if (validator.isValid(billing.street)) {
                     return res.status(400).send({ status: false, message: "billing street is required" });
                 }
-
                 if (validator.isValid(billing.city)) {
                     return res.status(400).send({ status: false, message: "billing city is required" });
                 }
                 if (!validator.isvalidCity(billing.city)) {
                     return res.status(400).send({ status: false, message: "city field have to fill by alpha characters" });
                 }
-
                 if (validator.isValid(billing.pincode)) {
                     return res.status(400).send({ status: false, message: "billing pincode is required" });
                 }
-
                 if (!validator.isValidPincode(billing.pincode)) {
                     return res.status(400).send({ status: false, message: "please enter valid billing pincode" });
                 }
@@ -354,5 +345,5 @@ let updateUser = async function (req, res) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
+//===============================================================================================================================
 module.exports = { createUser, login, getUserProfile, updateUser }
