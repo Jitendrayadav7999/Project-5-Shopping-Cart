@@ -1,6 +1,5 @@
 const validator = require("../validator/validator")
 const cartModel = require("../model/cartModel")
-const userModel = require("../model/userModel")
 const orderModel = require("../model/orderModel")
 
 // ================================================== Create Order============================================================

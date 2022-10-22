@@ -14,10 +14,7 @@ const createProduct = async (req, res) => {
         if (!validator.isValidFiles(files)) {
             return res.status(400).send({ status: false, message: "productImage is required" })
         }
-        const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments, ...rest } = productDetails
-        if (!validator.isValidBody(rest)) {
-            return res.status(400).send({ status: false, message: "InValid  Body Request" });
-        }
+        const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = productDetails
         //    title validation
         if (!validator.isValid1(title)) {
             return res.status(400).send({ status: false, message: "title is required" })
@@ -206,11 +203,8 @@ const updateProduct = async (req, res) => {
         let data = req.body;
         let files = req.files;
 
-        const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments, ...rest } = data
+        const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
 
-        if (!validator.isValidBody(rest)) {
-            return res.status(400).send({ status: false, message: "InValid  Body Request" });
-        }
         // file validation
         if (validator.isValidBody(data)) return res.status(400).send({ status: false, message: "Body cannot be empty " })
         //checking for product image
@@ -298,7 +292,6 @@ const deletebyId = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message })
     }
 };
-
 
 module.exports = { createProduct, updateProduct, deletebyId, getproducts, getWithPath }
 

@@ -224,11 +224,9 @@ let updateUser = async function (req, res) {
         let data = req.body
         let files = req.files;
 
-        let { fname, lname, email, password, address, phone, ...rest } = data
+        let { fname, lname, email, password, address, phone } = data
 
-        if (!validator.isValidBody(rest)) {
-            return res.status(400).send({ status: false, message: "InValid  Body Request" });
-        }
+      
         //validationg the request bod
         if (!(files && !validator.isValidBody(data))) {
             if (!validator.isValidBody(data)) {

@@ -36,7 +36,6 @@ const CreateCart = async (req, res) => {
         if (!CheckProduct) {
             return res.status(404).send({ status: false, message: 'Product Not found' })
         }
-
         const checkCartPresent = await cartModel.findOne({ userId: userId })
         // creating the new Cart
         if (!checkCartPresent) {
@@ -88,8 +87,7 @@ const CreateCart = async (req, res) => {
 const updateCart = async (req, res) => {
     try {
         let requestBody = req.body
-        let userId = req.params.userId
-
+       
         const { productId, cartId, removeProduct } = requestBody
 
         if (validator.isValidBody(requestBody)) {

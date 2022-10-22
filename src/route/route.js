@@ -16,7 +16,6 @@ router.put("/user/:userId/profile", authentication, authorization, userControlle
 // ================ Start Product Controller Api's ====================
 router.post("/products",productController.createProduct)
 router.put("/products/:productId", productController.updateProduct)
-router.delete( "/products/:productId",productController.deletebyId)
 router.get("/products", productController.getproducts)
 router.get('/products/:productId',productController.getWithPath)
 router.delete( "/products/:productId",productController.deletebyId)
